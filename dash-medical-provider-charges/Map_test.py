@@ -263,9 +263,9 @@ def generate_geo_map(geo_data, selected_metric, region_select, procedure_select)
         # else:
         #     color = colors[3]
 
-        # selected_index = []
-        # if provider in procedure_select["hospital"]:
-        #     selected_index = [0]
+        selected_index = []
+        if provider in procedure_select["hospital"]:
+            selected_index = [0]
 
         hospital = go.Scattermapbox(
             lat=[lat[i]],
@@ -496,6 +496,29 @@ app.layout = html.Div(
 # app.layout  = html.Div([
 #     dcc.Graph(id='graph', figure=fig)
 # ])
+
+def update_geo_map(cost_select, region_select, procedure_select, state_select):
+    # generate geo map from state-select, procedure-select
+    state_agg_data = df['Facility Name','Overall hospital rating']#generate_aggregation(data_dict[state_select], cost_metric)
+
+    provider_data = {"procedure": [], "hospital": []}
+    if procedure_select is not None:
+        for point in procedure_select["points"]:
+            provider_data["procedure"].append(point["y"])
+            provider_data["hospital"].append(point["customdata"])
+
+    return generate_geo_map(state_agg_data, cost_select, region_select, provider_data)
+
+
+@app.callback(
+    Output("procedure-plot", "figure"),
+    [
+        Input("metric-select", "value"),
+        Input("region-select", "value"),
+        Input("geo-map", "selectedData"),
+        Input("state-select", "value"),
+    ],
+)
 
 if __name__ == '__main__':
     app.run_server(debug=True)
